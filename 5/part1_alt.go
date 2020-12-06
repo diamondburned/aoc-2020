@@ -38,21 +38,19 @@ func main() {
 	// fmt.Println(maxSeatID)
 }
 
-// I can't believe I hadn't thought of this!
+// I can't believe I didn't think of this!
+// Credit to someone from the Discord Gophers server for stealing the idea off
+// of someone else.
+
+var binHack = strings.NewReplacer(
+	"F", "0", "L", "0",
+	"B", "1", "R", "1",
+)
 
 func bseat(input string) (int, int) {
-	rowInputs := input[:7]
-	rowInputs = strings.ReplaceAll(rowInputs, "F", "0")
-	rowInputs = strings.ReplaceAll(rowInputs, "B", "1")
-
-	row, _ := strconv.ParseInt(rowInputs, 2, 0)
-
-	colInputs := input[7:]
-	colInputs = strings.ReplaceAll(colInputs, "L", "0")
-	colInputs = strings.ReplaceAll(colInputs, "R", "1")
-
-	col, _ := strconv.ParseInt(colInputs, 2, 0)
-
+	input = binHack.Replace(input)
+	row, _ := strconv.ParseInt(input[:7], 2, 0)
+	col, _ := strconv.ParseInt(input[7:], 2, 0)
 	return int(row), int(col)
 }
 
