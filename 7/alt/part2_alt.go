@@ -38,7 +38,7 @@ import (
 // special - it depends on E, so we must count E's children as well. The
 // visualization tells us E has 3 children, but since we have 2 D bags, we must
 // multiply 3 by 2, giving us 6 bags in the D branch without D itself. Adding
-// them gives us 2 (E, D) + 6 (D children bags) = 8 bags in total.
+// them gives us 2 (C, D) + 6 (D children bags) = 8 bags in total.
 //
 // Since this function finds the number of bags in the given parent, we could
 // use this same function to find D's children, meaning we're using the function
