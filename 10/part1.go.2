@@ -1,0 +1,143 @@
+package main
+
+import (
+	"fmt"
+	"sort"
+	"strconv"
+
+	"github.com/diamondburned/aoc-2020/aocutil"
+)
+
+// This code to remain largely unaltered from the state it was used to solve,
+// mostly for historical purposes.
+
+const maxJoltDiff = 3
+
+func main() {
+	lines := aocutil.SplitFile("input", "\n")
+
+	var jolts = make([]int, 0, len(lines))
+
+	for _, line := range lines {
+		n, err := strconv.Atoi(line)
+		if err != nil {
+			continue
+		}
+		jolts = append(jolts, n)
+	}
+
+	_, maxJolt := aocutil.MinMaxes(jolts)
+	maxJolt += maxJoltDiff
+
+	// var arrangements int
+
+	var outletJolts = append([]int{0}, jolts...)
+	sort.Ints(outletJolts)
+
+	// var permus = permute(outletJolts)
+	// var checked = map[[100]int]struct{}{}
+
+	// // somehow find the combinations shorter than outletJolts while removing
+	// // some?
+	// for _, permu := range permus {
+	// 	var nums [100]int
+	// 	copy(nums[:], permu)
+	// 	if _, ok := checked[nums]; ok {
+	// 		continue
+	// 	}
+	// 	checked[nums] = struct{}{}
+	// 	// Check if this is a valid combination.
+	// 	if isValidCombo(permu, maxJolt) {
+	// 		log.Println("valid:", permu)
+	// 		arrangements++
+	// 	}
+	// }
+
+	// fmt.Println(arrangements)
+	fmt.Println(nPermute1(outletJolts[1 : len(outletJolts)-1]))
+	fmt.Println(nPermute2(outletJolts[1 : len(outletJolts)-1]))
+	fmt.Println(shortestCombo(outletJolts))
+}
+
+func nPermute1(jolts []int) int {
+	var nPermute int
+
+	for i := 0; i < len(jolts); i++ {
+		next := nextCombos(jolts, i)
+		// log.Println("Jolt:", jolts[i])
+		// log.Println("Nexts:", next)
+		nPermute += len(next)
+	}
+
+	return nPermute
+}
+
+func nPermute2(jolts []int) int {
+	var nPermute int
+
+	for i := 0; i < len(jolts); {
+		next := nextCombos(jolts, i)
+		if len(next) == 0 {
+			break
+		}
+
+		// log.Println("Jolt:", jolts[i])
+		// log.Println("Nexts:", batchAccess(jolts, next))
+
+		i = next[len(next)-1]
+		nPermute += len(next)
+	}
+
+	return nPermute
+}
+
+func batchAccess(jolts []int, ixs []int) []int {
+	var access = make([]int, len(ixs))
+	for i, ix := range ixs {
+		access[i] = jolts[ix]
+	}
+	return access
+}
+
+func shortestCombo(jolts []int) (combo []int) {
+	for i := 0; i < len(jolts); {
+		next := nextCombos(jolts, i)
+		if len(next) == 0 {
+			break
+		}
+
+		i = next[len(next)-1]
+		combo = append(combo, jolts[i])
+	}
+
+	return combo
+}
+
+func nextCombos(jolts []int, currentIx int) (nextIxs []int) {
+	for i := currentIx + 1; i < len(jolts); i++ {
+		if jolts[i]-jolts[currentIx] > maxJoltDiff {
+			return
+		}
+		nextIxs = append(nextIxs, i)
+	}
+	return
+}
+
+func isValidCombo(jolts []int, max int) bool {
+	if jolts[len(jolts)-1]+3 < max {
+		return false
+	}
+
+	var lastJolt = jolts[0]
+
+	for i := 1; i < len(jolts); i++ {
+		var difference = jolts[i] - lastJolt
+		if difference > maxJoltDiff {
+			return false
+		}
+
+		lastJolt = jolts[i]
+	}
+
+	return true
+}

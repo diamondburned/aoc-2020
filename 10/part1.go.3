@@ -1,0 +1,92 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"sort"
+	"strconv"
+
+	"github.com/diamondburned/aoc-2020/aocutil"
+)
+
+// This code to remain largely unaltered from the state it was used to solve,
+// mostly for historical purposes.
+
+const maxJoltDiff = 3
+
+func main() {
+	lines := aocutil.SplitFile("input", "\n")
+
+	var jolts = make([]int, 0, len(lines))
+
+	for _, line := range lines {
+		n, err := strconv.Atoi(line)
+		if err != nil {
+			continue
+		}
+		jolts = append(jolts, n)
+	}
+
+	_, maxJolt := aocutil.MinMaxes(jolts)
+	maxJolt += maxJoltDiff
+
+	var arrangements int
+
+	var outletJolts = append([]int{0}, jolts...)
+	sort.Ints(outletJolts)
+
+	var permus = permute(outletJolts)
+	var checked = map[[100]int]struct{}{}
+
+	// somehow find the combinations shorter than outletJolts while removing
+	// some?
+	for _, permu := range permus {
+		var nums [100]int
+		copy(nums[:], permu)
+		if _, ok := checked[nums]; ok {
+			continue
+		}
+		checked[nums] = struct{}{}
+		// Check if this is a valid combination.
+		if isValidCombo(permu, maxJolt) {
+			log.Println("valid:", permu)
+			arrangements++
+		}
+	}
+
+	fmt.Println(arrangements)
+}
+
+func permute(jolts []int) [][]int {
+	perms := [][]int{
+		{jolts[0]},
+	}
+
+	for i := 1; i < len(jolts); i++ {
+		permLen := len(perms)
+		for j := 0; j < permLen; j++ {
+			perms = append(perms, append(append([]int(nil), perms[j]...), jolts[i]))
+		}
+	}
+
+	return perms
+}
+
+func isValidCombo(jolts []int, max int) bool {
+	if jolts[len(jolts)-1]+3 < max {
+		return false
+	}
+
+	var lastJolt = jolts[0]
+
+	for i := 1; i < len(jolts); i++ {
+		var difference = jolts[i] - lastJolt
+		if difference > maxJoltDiff {
+			return false
+		}
+
+		lastJolt = jolts[i]
+	}
+
+	return true
+}
